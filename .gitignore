@@ -1,0 +1,9 @@
+/target/
+/.idea/
+/.vscode/
+*.iml
+/tmp/
+/.m2/
+/output/
+/minishop-lab*.zip
+/evidencias/
