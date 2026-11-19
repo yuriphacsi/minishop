@@ -14,19 +14,32 @@ jobs:
     steps:
       - name: 1 - Descargar el código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # <-- CAMBIO 1: Historial completo para Sonar
+
       - name: 2 - Configurar Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
+
       - name: 3 - Compilar
         run: mvn -B compile
+
       - name: 4 - Pruebas unitarias (Surefire)
         run: mvn -B test
-      - name: 5 - Pruebas de integración y empaquetado (Failsafe)
+
+      - name: 5 - Pruebas de integración, cobertura y empaquetado (Failsafe + JaCoCo)
         run: mvn -B verify -DskipUTs=true
-      - name: 6 - Guardar reportes de pruebas
+
+      # <-- CAMBIO 2: Nuevo paso de Sonar
+      - name: 6 - Análisis estático (SonarQube Cloud)
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+
+      - name: 7 - Guardar reportes de pruebas y cobertura
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -34,7 +47,9 @@ jobs:
           path: |
             target/surefire-reports/
             target/failsafe-reports/
-      - name: 7 - Guardar el .jar
+            target/site/jacoco/  # <-- CAMBIO 3: Guardar reporte de JaCoCo
+
+      - name: 8 - Guardar el .jar
         uses: actions/upload-artifact@v4
         with:
           name: minishop-jar
