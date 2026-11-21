@@ -33,7 +33,6 @@ jobs:
       - name: 5 - Pruebas de integración, cobertura y empaquetado (Failsafe + JaCoCo)
         run: mvn -B verify -DskipUTs=true
 
-      # <-- CAMBIO 2: Nuevo paso de Sonar
       - name: 6 - Análisis estático (SonarQube Cloud)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
